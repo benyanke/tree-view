@@ -681,7 +681,7 @@ class TreeView
         newPath = path.join(basePath, path.basename(initialPath))
 
         if basePath.startsWith(initialPath) # For example, trying to copy test/a/ into test/a/b/
-          atom.notifications.addWarning('Cannot copy a folder into itself')
+          atom.notifications.addWarning('Cannot paste a folder into itself')
           continue
 
         if copiedPaths
@@ -708,9 +708,8 @@ class TreeView
               fs.writeFileSync(newPath, fs.readFileSync(initialPath))
               @emitter.emit 'entry-copied', {initialPath, newPath}
         else if cutPaths
-          # Only move the target if the cut target doesn't exist and if the newPath
-          # is not within the initial path
-          unless fs.existsSync(newPath) or newPath.startsWith(initialPath)
+          # Only move the target if the cut target doesn't exist
+          unless fs.existsSync(newPath)
             catchAndShowFileErrors =>
               fs.moveSync(initialPath, newPath)
               @emitter.emit 'entry-moved', {initialPath, newPath}
@@ -797,8 +796,12 @@ class TreeView
     if initialPath is newDirectoryPath
       return
 
+    if newDirectoryPath.startsWith(initialPath)
+      atom.notifications.addWarning('Cannot move a folder into itself')
+      return
+
     entryName = path.basename(initialPath)
-    newPath = "#{newDirectoryPath}/#{entryName}".replace(/\s+$/, '')
+    newPath = path.join(newDirectoryPath, entryName).replace(/\s+$/, '')
 
     try
       fs.makeTreeSync(newDirectoryPath) unless fs.existsSync(newDirectoryPath)
