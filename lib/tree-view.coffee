@@ -794,7 +794,7 @@ class TreeView
       return
 
     entryName = path.basename(initialPath)
-    newPath = "#{newDirectoryPath}/#{entryName}".replace(/\s+$/, '')
+    newPath = path.join(newDirectoryPath, entryName)
 
     try
       fs.makeTreeSync(newDirectoryPath) unless fs.existsSync(newDirectoryPath)
